@@ -1,0 +1,4 @@
+.exercism
+node_modules
+# javascript deaths
+report.20*.json
