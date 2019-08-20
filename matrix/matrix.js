@@ -1,18 +1,12 @@
-const lines = (string) => string.split("\n")
-const tap = (obj, func) => { // ala Ruby's tap
-  func(obj);
-  return obj;
-}
+import {lines, tap, traverseGrid, emptyGrid} from './tools';
 
 const transpose = (grid) => {
   const height = grid.length
   const width = grid[0].length
-  return tap([], (transposed) => {
-    for (let x=0; x < width; x++) {
-      transposed.push([])
-      for (let y=0; y < height; y++) {
-        transposed[x][y] = grid[y][x]
-      }
+
+  return tap(emptyGrid({width,height}), (transposed) => {
+    for (let [x,y] of traverseGrid({height,width})) {
+      transposed[x][y] = grid[y][x]
     }
   })
 }
