@@ -18,9 +18,11 @@ export class List {
 
   concat(list_of_lists) {
     return withNewList((all) => {
-      for (let list of [this,...list_of_lists]) {
-        all.append(list)
-      }
+      // using forEach on lists_of_lists, not proxying array functions
+      // so I think this is valid give the usage
+      //
+      // otherwise list_of_lists.unshift(this).forEach...
+      [this,...list_of_lists].forEach(list => all.append(list))
     })
   }
 
@@ -53,15 +55,15 @@ export class List {
   }
 
   push(item) {
-    this._items = [...this._items, item]
+    this._items = [...this, item]
   }
 
   unshift(item) {
-    this._items = [item, ...this._items]
+    this._items = [item, ...this]
   }
 
   get values() {
-    return [...this._items]
+    return [...this]
   }
 
   foldl(foldFunc, acc) {
