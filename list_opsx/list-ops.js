@@ -17,29 +17,21 @@ export class List {
   }
 
   concat(list_of_lists) {
-    return withNewList((all) => {
-      // using forEach on lists_of_lists, not proxying array functions
-      // so I think this is valid give the usage
-      //
-      // otherwise list_of_lists.unshift(this).forEach...
-      [this,...list_of_lists].forEach(list => all.append(list))
-    })
+    list_of_lists = new List([this,...list_of_lists])
+    return list_of_lists.eachWithObject(new List(),
+      (all, list) => all.append(list) )
   }
 
   filter(filterFunc) {
-    return withNewList((list) => {
-      this.forEach(el => filterFunc(el) && list.push(el))
-      // for (let el of this) {
-        // if (filterFunc(el))
-
-      // }
+    return this.eachWithObject(new List(), (list, el) => {
+      filterFunc(el) && list.push(el)
     })
   }
 
   map(mapFunc) {
-    return withNewList((list) => {
-      this.forEach(el => list.push(mapFunc(el)))
-    })
+    return this.eachWithObject(new List(),
+      (list, el) => list.push(mapFunc(el))
+    )
   }
 
   forEach(func) {
@@ -73,14 +65,21 @@ export class List {
     return acc
   }
 
+  eachWithObject(obj,foldFunc) {
+    for (let el of this) {
+      foldFunc(obj, el)
+    }
+    return obj
+  }
+
   foldr(foldFunc, acc) {
     return this.reverse().foldl(foldFunc, acc)
   }
 
   reverse() {
-    return withNewList((list) => {
-      this.forEach(el => list.unshift(el))
-    })
+    return this.eachWithObject(new List(),
+      (list, el) => list.unshift(el)
+    )
   }
 
   // just borrow array's iterator
