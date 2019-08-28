@@ -4,12 +4,13 @@ const encodeSequence = (sequence) => {
 }
 
 const decodeSequence = (sequence) => {
-  let length = parseInt(sequence) || 1
-  return sequence[sequence.length-1].repeat(length)
+  let length = parseInt(sequence)
+  let char = sequence.substr(-1)
+  return char.repeat(length)
 }
 
 const REPEATED_GROUPS_REGEX = /(.)\1*/g
-const ENCODED_REGEX = /\d*./g
+const ENCODED_REGEX = /\d+./g
 
 export const encode = (phrase) => {
   return phrase.replace(REPEATED_GROUPS_REGEX, (match) => encodeSequence(match)
