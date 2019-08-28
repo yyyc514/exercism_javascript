@@ -197,6 +197,11 @@ describe('Forth', () => {
       forth.evaluate('1 foo');
       expect(forth.stack).toEqual([1, 1, 1]);
     });
+    test('incomplete function', () => {
+      expect(() => {
+        forth.evaluate(': boo');
+      }).toThrow(new Error('Expected more program.'));
+    });
     test('can override built-in words', () => {
       forth.evaluate(': swap dup ;');
       forth.evaluate('1 swap');

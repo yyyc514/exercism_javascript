@@ -4,8 +4,9 @@ const OPERATOR_REGEX = /^[+-/*]$/
 const DEFINE_FUNCTION = ":"
 const FUNCTION_END = ";"
 
-const isDigit = (x) => x.match(DIGIT_REGEX)
+const isNumerical = (x) => x.match(DIGIT_REGEX)
 const isOperator = (x) => x.match(OPERATOR_REGEX)
+const caseInsensative = (x) => x.toLowerCase()
 
 const operations = {
     "+": "add",
@@ -26,6 +27,16 @@ const validInstruction = (token) =>  instructions.includes(token)
 class Parser {
     constructor(program) {
         this.stream = program.split(" ")[Symbol.iterator]()
+    }
+    fetchUntil(op) {
+        let token, ops = []
+        while((token = this.fetch()) != op) {
+            if (token==null) {
+                throw('Expected more program.')
+            }
+            ops.push(token)
+        }
+        return ops
     }
     fetch() {
         return this.stream.next().value
@@ -48,8 +59,8 @@ export class Forth {
     }
 
     _eval(token) {
-        token = token.toLowerCase()
-        if (isDigit(token)) {
+        token = caseInsensative(token)
+        if (isNumerical(token)) {
             this.push(Number(token))
         } else if (this.userFunctions[token]) {
             this.execUserFunc(token)
@@ -77,15 +88,11 @@ export class Forth {
     }
 
     defineFunction() {
-        let token, ops = []
         let name = this.parser.fetch().toLowerCase()
-        if (isDigit(name)) {
+        if (isNumerical(name)) {
             throw('Invalid definition')
         }
-        while((token = this.parser.fetch()) != FUNCTION_END) {
-            ops.push(token)
-        }
-        this.userFunctions[name] = ops
+        this.userFunctions[name] = this.parser.fetchUntil(";")
     }
 
     push() {
