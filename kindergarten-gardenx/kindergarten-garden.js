@@ -11,29 +11,37 @@ const DEFAULT_STUDENTS = [
   "Ileana", "Joseph", "Kincaid", "Larry"
 ]
 
+
+const linesOf = (x) => x.split("\n")
+
 export class Garden {
-  constructor(diagram ,studentList) {
-    this.plantRows = diagram.split("\n")
-    this.students = (studentList || DEFAULT_STUDENTS)
-      .map((x) => x.toLowerCase())
+  constructor(diagram, studentList = DEFAULT_STUDENTS) {
+    this.diagram = diagram
+    this.students = studentList
+      .map(x => x.toLowerCase())
       .sort()
     return new Proxy(this, {
-       get: (_, student) =>  this.planetsFor(student)
+       get: (_, student) =>  this.plantsFor(student)
     })
   }
 
+  // The window and plants
+  //
+  // 0  1  2  3        (indexes)
+  // [w in do w][window][window]
+  // VR CG VV RVCGGCCGVRGCVCGCGV
+  // VR CC CG CRRGVCGCRVVCVGCGCV
+  //
+  // postsAt(2) => V,V,C, G
   potsAt(index) {
-    return this.plantRows.map ((row) =>
-      row.slice(index*2,index*2+2))
+    return linesOf(this.diagram)
+      .map ((row) => row.slice(index*2,index*2+2))
       .join("")
       .split("")
   }
 
-  planetsFor(student) {
+  plantsFor(student) {
     let index = this.students.indexOf(student)
-    // console.log(student)
-    // console.log(index)
     return this.potsAt(index).map(pot => PLANTS[pot])
   }
-
 }
