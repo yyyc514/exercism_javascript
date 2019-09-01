@@ -1,33 +1,24 @@
 class Node {
-    constructor(data, linkage = {}) {
+    constructor(data) {
         this.data = data
-        this.next = linkage.next
-        this.previous = linkage.previous
     }
 }
 
+const tapData = (v, fn) => { fn(v); return v.data }
+const TAIL = "tail"
+const HEAD = "head"
+
 export class LinkedList {
     constructor () {
-        this.head = null
-        this.tail = null
+        this.head = this.tail = null
     }
 
-    push (item) {
-        let old_tail = this.tail
-        let node = new Node(item)
-        if (this.empty()) { return this.add_first(node) }
-        old_tail.next = node
-        node.previous = old_tail
-        this.tail = node
+    push (data) {
+        this.insert(data, TAIL)
     }
 
-    unshift(item) { // add to beginning
-        let node = new Node(item)
-        if (this.empty()) { return this.add_first(node) }
-        let old_head = this.head
-        this.head = node
-        old_head.previous = this.head
-        this.head.next = old_head
+    unshift(data) { // add to beginning
+        this.insert(data, HEAD)
     }
 
     empty () {
@@ -35,60 +26,78 @@ export class LinkedList {
     }
 
     pop () {
-        let old_tail = this.tail
-        this.tail = old_tail.previous
-        if (this.tail) { this.tail.next = null }
-        this.checkEmpty();
-        return old_tail.data
+        return this.remove(this.tail).data
     }
 
     shift() {
-        let old_head = this.head
-        this.head = old_head.next
-        this.checkEmpty()
-        return old_head.data
+        return this.remove(this.head).data
     }
 
-    delete(item) {
+    delete(data) {
+        let node = this.findNode(data)
+        if (node) this.remove(node)
+    }
+
+    count() {
+        let count = 0
         let node = this.head
         while (node) {
-            if (node.data == item) {
-                if (node==this.head) {
-                    this.shift()
-                } else if (node==this.tail) {
-                    this.pop()
-                } else {
-                    node.previous.next = node.next
-                    node.next.previos = node.previous
-                }
-            }
             node = node.next
+            count++
         }
-    }
-
-    count(item) {
-        let c = 0
-        item = this.head
-        while (item) {
-            item = item.next
-            c++
-        }
-        return c
+        return count
     }
 
     // private api
 
-    add_first (node) {
-        this.head = node
-        this.tail = node
+    findNode(data) {
+        let node = this.head
+        while (node) {
+            if (node.data == data) {
+                return node
+            }
+            node = node.next
+        }
+        return null
+    }
+
+    setFirst (nodeornull) {
+        this.head = this.tail = nodeornull
     }
 
     checkEmpty() {
-        if (this.head == null) {
-            this.tail=null
-        } else if (this.tail == null) {
-            this.head=null
+        if (!this.head || !this.tail) {
+            this.setFirst(null)
         }
     }
 
+    insert(data, where) {
+        let node = new Node(data)
+        let old_bookend = this[where]
+
+        if (this.empty()) {
+            this.setFirst(node)
+        } else if (where==TAIL) {
+            old_bookend.next = node
+            node.previous = old_bookend
+        } else {
+            old_bookend.previous = node
+            node.next = old_bookend
+        }
+        this[where] = node
+    }
+
+    remove(node) {
+        if (node==this.head) {
+            this.head = this.head.next
+        } else if (node==this.tail) {
+            this.tail = this.tail.previous
+            this.tail && (this.tail.next = null)
+        } else {
+            node.previous.next = node.next
+            node.next.previous = node.previous
+        }
+        this.checkEmpty();
+        return node
+    }
 }
