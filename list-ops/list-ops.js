@@ -1,9 +1,3 @@
-const withNewList = (fn) => {
-  let list = new List()
-  fn(list)
-  return list
-}
-
 export class List {
   constructor(items = []) {
     this._items = [...items]
@@ -12,20 +6,20 @@ export class List {
   // yes, this is meant to modify in place AFAICT from my
   // understanding of the instructions
   append(other) {
-    other.forEach(el => this.push(el) )
+    this._items = [...this, ...other]
     return this
   }
 
-  concat(list_of_lists) {
-    list_of_lists = new List([this,...list_of_lists])
-    return list_of_lists.eachWithObject(new List(),
+  concat(lists) {
+    lists = new List([this,...lists])
+    return lists.eachWithObject(new List(),
       (all, list) => all.append(list) )
   }
 
   filter(filterFunc) {
-    return this.eachWithObject(new List(), (list, el) => {
+    return this.eachWithObject(new List(), (list, el) =>
       filterFunc(el) && list.push(el)
-    })
+    )
   }
 
   map(mapFunc) {
@@ -40,7 +34,7 @@ export class List {
     }
   }
 
-  length(item) {
+  length() {
     let c = 0
     for (let _ of this) c++
     return c
@@ -65,11 +59,12 @@ export class List {
     return acc
   }
 
-  eachWithObject(obj,foldFunc) {
-    for (let el of this) {
-      foldFunc(obj, el)
-    }
-    return obj
+  eachWithObject(obj, foldFunc) {
+    // for (let el of this) {
+    //   foldFunc(obj, el)
+    // }
+    // return obj
+    return this.foldl( (_,el) => { foldFunc(obj,el); return obj }, obj);
   }
 
   foldr(foldFunc, acc) {
