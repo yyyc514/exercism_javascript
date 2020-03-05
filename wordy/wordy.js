@@ -1,4 +1,4 @@
-const OPS = {
+const SEGMENT_TO_OP = {
   "plus": (acc, n) => acc + n,
   "multiplied": (acc, n) => acc * n,
   "minus": (acc, n) => acc - n,
@@ -7,7 +7,7 @@ const OPS = {
 
 export class ArgumentError {
   constructor(message) {
-    this.message = message;
+    this.message = message
   }
 }
 
@@ -18,27 +18,31 @@ export class WordProblem {
     this.question = question
   }
   answer() {
-    this.acc = 0;
+    this.acc = 0
     // the first number we encounter is always added to the accumulator
-    this.operation = OPS.plus
-    this.segments().forEach((el) => this.parseSegment(el))
-    return this.acc;
+    this.nextOperation = SEGMENT_TO_OP.plus
+    this.segments().forEach((el) => this.execSegment(el))
+    return this.acc
   }
 
-  parseSegment(segment) {
-    let operation = OPS[segment];
-    if (operation) { return (this.operation = operation) };
+  execSegment(segment) {
+    if (EXTRANEOUS_BUT_ALLOWED.includes(segment)) return
+    let num
 
-    if (EXTRANEOUS_BUT_ALLOWED.includes(segment)) return;
+    if (num = parseInt(segment))
+      return this.doOperation(num)
 
-    // only possibility left is a number (or error case)
-    this.executeOperation(parseInt(segment))
+    this.nextOperation = SEGMENT_TO_OP[segment] || this.invalidInput()
   }
-  executeOperation(num) {
-    if (isNaN(num)) throw new ArgumentError("invalid input string")
 
-    this.acc = this.operation(this.acc, num);
+  invalidInput() {
+    throw new ArgumentError("invalid input string")
   }
+
+  doOperation(num) {
+    this.acc = this.nextOperation(this.acc, num)
+  }
+
   segments() {
     return this.question.split(" ")
   }
