@@ -1,51 +1,40 @@
-const SEGMENT_TO_OP = {
+const NAMED_OPERATIONS = {
   "plus": (acc, n) => acc + n,
-  "multiplied": (acc, n) => acc * n,
+  "multiplied by": (acc, n) => acc * n,
   "minus": (acc, n) => acc - n,
-  "divided": (acc, n) => acc / n
+  "divided by": (acc, n) => acc / n
 }
 
 export class ArgumentError {
-  constructor(message) {
-    this.message = message
+}
+
+// A term is either "[word]* [number]" or simply "[word]"
+// the latter matches trailing words that usually indicate an error
+// for example: "What is 32" or "divided by -29".
+const TERM = /((?:[a-z]+\s?)+)\s([^ ?]+)|\w+/gi
+
+class Op {
+  constructor({op, value}) {
+    this.op = op;
+    this.value = Number(value);
+  }
+
+  calculate(acc) {
+    if (!NAMED_OPERATIONS[this.op]) throw new ArgumentError();
+    return NAMED_OPERATIONS[this.op](acc, this.value);
   }
 }
 
-const EXTRANEOUS_BUT_ALLOWED = [ "What", "is", "by" ]
-
 export class WordProblem {
   constructor(question) {
-    this.question = question
+    // we always add the first value we find after "What is" so just hack the
+    // string vs hard code this in Op as an edge case
+    this.question = question.replace(/^What is/,"plus")
   }
   answer() {
-    this.acc = 0
-    // the first number we encounter is always added to the accumulator
-    this.nextOperation = SEGMENT_TO_OP.plus
-    this.segments().forEach((el) => this.execSegment(el))
-    return this.acc
+    return [...this.question.matchAll(TERM)]
+      .map(x => new Op({ op: x[1], value: x[2]}))
+      .reduce((acc,op) => op.calculate(acc),0)
   }
-
-  execSegment(segment) {
-    if (EXTRANEOUS_BUT_ALLOWED.includes(segment)) return
-    let num
-
-    if (num = parseInt(segment))
-      return this.doOperation(num)
-
-    this.nextOperation = SEGMENT_TO_OP[segment] || this.invalidInput()
-  }
-
-  invalidInput() {
-    throw new ArgumentError("invalid input string")
-  }
-
-  doOperation(num) {
-    this.acc = this.nextOperation(this.acc, num)
-  }
-
-  segments() {
-    return this.question.split(" ")
-  }
-
 }
 
