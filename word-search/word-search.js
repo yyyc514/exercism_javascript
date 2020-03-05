@@ -13,9 +13,29 @@ function addVector(pos, vec) {
   return [pos[0] + vec[0], pos[1] + vec[1]]
 }
 
+class Grid {
+  constructor(textGrid) {
+    this.grid = textGrid
+  }
+
+  letterAt(x, y) {
+    if (!this.grid[y]) return undefined
+    return this.grid[y][x]
+  }
+
+  // walks the grid but stops when `fn` returns true
+  traverseFind(fn) {
+    this.grid.find((_,y) => {
+      return [...this.grid[0]].find((_, x) => {
+        return fn(x,y)
+      })
+    })
+  }
+}
+
 class WordSearch {
   constructor(grid) {
-    this.grid = grid
+    this.grid = new Grid(grid)
   }
 
   find(words) {
@@ -26,15 +46,10 @@ class WordSearch {
     return positions
   }
 
-  letterAt(x, y) {
-    if (!this.grid[y]) return undefined
-    return this.grid[y][x]
-  }
-
   wordAt(word, start, vector) {
     let pos = start
     for (let letter of word) {
-      if (letter !== this.letterAt(...pos))
+      if (letter !== this.grid.letterAt(...pos))
         return undefined;
       pos = addVector(pos, vector)
     }
@@ -49,22 +64,13 @@ class WordSearch {
     }
   }
 
-  // walks the grid but stops when `fn` returns true
-  walkGridFind(fn) {
-    this.grid.find((_,y) => {
-      return [...this.grid[0]].find((_, x) => {
-        return fn(x,y)
-      })
-    })
-  }
-
   findWord(word) {
     let result
     let firstLetter = word[0]
-    this.walkGridFind((x,y) => {
+    this.grid.traverseFind((x,y) => {
       // first make sure we match the first character
       // to avoid a bunch of needless vector searching
-      if (firstLetter !== this.letterAt(x,y)) return;
+      if (firstLetter !== this.grid.letterAt(x,y)) return;
 
       for (let vec of VECTORS) {
         if ((result = this.wordAt(word, [x,y], vec))) {
