@@ -45,7 +45,7 @@ export class Triangle {
     let result = [...starterRow]
     let previousRow = () => lastItem(result)
 
-    while (result.length < this.height) {
+    for(let i = 1; i < this.height; i++) {
       let row = this.nextRow(previousRow())
       result.push(row)
     }
