@@ -26,6 +26,11 @@ const pairs = (row) => {
   return row.map((v,i) => [row[i],row[i+1] || 0])
 }
 
+function repeat(x, fn) {
+  // while (--x) { fn(i) }
+  for (let i = 0; i < x; i++) { fn(i) }
+}
+
 export class Triangle {
   constructor(height) {
     this.height = height
@@ -38,17 +43,17 @@ export class Triangle {
 
   nextRow(priorRow) {
     return pairs(priorRow)
-      .map(([leftValue, rightValue]) => leftValue + rightValue)
+      .map(([left, right]) => left + right)
   }
 
   get rows() {
     let result = [...starterRow]
     let previousRow = () => lastItem(result)
 
-    for(let i = 1; i < this.height; i++) {
-      let row = this.nextRow(previousRow())
-      result.push(row)
-    }
+    // the first row comes with starterRow, so we're building height - 1
+    repeat(this.height - 1, _ =>
+      result.push(this.nextRow(previousRow()))
+    );
     return result
   }
 }
