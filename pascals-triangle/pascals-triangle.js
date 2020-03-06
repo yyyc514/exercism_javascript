@@ -9,7 +9,7 @@ Pascals Triangle
 
 */
 
-const pascalsTriangleSeed = [[1]]
+const starterRow = [[1]]
 const lastItem = (list) => list[list.length-1]
 
 /*
@@ -31,6 +31,7 @@ export class Triangle {
     this.height = height
   }
 
+  // to make tests happy
   get lastRow() {
     return lastItem(this.rows)
   }
@@ -41,12 +42,12 @@ export class Triangle {
   }
 
   get rows() {
-    var result = [...pascalsTriangleSeed]
-    var previous = lastItem(result)
+    let result = [...starterRow]
+    let previousRow = () => lastItem(result)
+
     while (result.length < this.height) {
-      var row = this.nextRow(previous)
+      let row = this.nextRow(previousRow())
       result.push(row)
-      previous = row
     }
     return result
   }
