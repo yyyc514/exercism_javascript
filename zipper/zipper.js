@@ -28,18 +28,25 @@ export class Zipper {
     }
 
     setLeft(node) {
-        this.focus.left = node
-        return this
+        let copy = this._cloneSelf()
+        copy.focus.left = node
+        return copy
     }
 
     setRight(node) {
-        this.focus.right = node
-        return this
+        let copy = this._cloneSelf()
+        copy.focus.right = node
+        return copy
     }
 
-    setValue(x) {
-        this.focus.value = x
-        return this
+    setValue(v) {
+        let copy = this._cloneSelf()
+        copy.focus.value = v
+        return copy
+    }
+
+    _cloneSelf() {
+        return this.newZipperFocus(this.focus)
     }
 
     value() {
