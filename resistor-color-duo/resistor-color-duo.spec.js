@@ -9,6 +9,10 @@ describe('Resistor Colors', () => {
     expect(value(['blue', 'grey'])).toEqual(68);
   });
 
+  test('Blue and grey (and junk)', () => {
+    expect(value(['blue', 'grey','blue'])).toEqual(68);
+  });
+
   test('Yellow and violet', () => {
     expect(value(['yellow', 'violet'])).toEqual(47);
   });

@@ -3,8 +3,6 @@
 // convenience to get you started writing code faster.
 //
 
-const TERMINATING_CODON = [..."STOP"]
-
 // proteins
 const Methionine = "Methionine"
 const Phenylalanine = "Phenylalanine"
@@ -21,9 +19,10 @@ const CODONS_to_PROTEIN = new Map([
   [["UCU","UCC","UCA","UCG"], Serine],
   [["UAU","UAC"], Tyrosine],
   [["UGU","UGC"], Cysteine],
-  [["UGG"], Tryptophan],
-  [["UAA", "UAG","UGA"], TERMINATING_CODON]
+  [["UGG"], Tryptophan]
 ])
+
+const TERMINATING_CODONS = ["UAA", "UAG","UGA"];
 
 const codonToProtein = (codon) => {
   // not the fastest lookup, but *shrugs*
@@ -39,8 +38,8 @@ class Codon {
     this.codon = codon;
   }
 
-  terminating() {
-    return this.protein() === TERMINATING_CODON;
+  isTerminating() {
+    return TERMINATING_CODONS.includes(this.codon);
   }
 
   protein() {
@@ -56,7 +55,7 @@ export const proteinTranslation = (rna_sequence) => {
 
   var result = []
   for (let codon of splitCodons(rna_sequence)) {
-    if (codon.terminating()) break;
+    if (codon.isTerminating()) break;
 
     result.push(codon.protein());
   }
