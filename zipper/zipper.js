@@ -1,7 +1,9 @@
 export function deepClone(node) {
     let fresh = Object.assign({}, node)
-    fresh.left = fresh.left && deepClone(fresh.left)
-    fresh.right =  fresh.right && deepClone(fresh.right)
+    for (let key in node) {
+        if (typeof fresh[key] === "object")
+            fresh[key] = fresh[key] && deepClone(fresh[key])
+    }
     return fresh
 }
 
@@ -11,54 +13,62 @@ export class Zipper {
     }
 
     constructor(focus, {parent} = {}) {
-        this.focus = focus
+        this.focusNode = focus
         this.parent = parent
     }
 
-    newZipperFocus(node) {
-        return new Zipper(node, {parent: this})
+    // when we request a zipper for a non existent node
+    // we will get null instead
+    newZipper(node) {
+        return node && new Zipper(node, {parent: this})
     }
 
     left() {
-        return this.focus.left && this.newZipperFocus(this.focus.left)
+        return this.newZipper(this.focusNode.left)
     }
 
     right() {
-        return this.focus.right && this.newZipperFocus(this.focus.right)
+        return this.newZipper(this.focusNode.right)
     }
 
     setLeft(node) {
-        let copy = this._cloneSelf()
-        copy.focus.left = node
-        return copy
+        return this._cloneSelf({left: node})
     }
 
     setRight(node) {
-        let copy = this._cloneSelf()
-        copy.focus.right = node
-        return copy
+        return this._cloneSelf({right: node})
     }
 
     setValue(v) {
-        let copy = this._cloneSelf()
-        copy.focus.value = v
-        return copy
+        return this._cloneSelf({value: v})
     }
 
-    _cloneSelf() {
-        return this.newZipperFocus(this.focus)
+    _cloneSelf(data) {
+        Object.assign(this.focusNode,data)
+        return this.newZipper(this.focusNode)
     }
 
     value() {
-        return this.focus.value
+        return this.focusNode.value
     }
 
     up() {
-        return this.parent ? this.parent : null;
+        if (this.isRoot) return null;
+
+        return new Zipper(this.parent.focusNode, {parent: this.parent.parent})
     }
 
+    get isRoot() {
+        return !this.parent
+    }
+
+    // returns the top-most node (ie, the full tree)
     toTree() {
-        return this.parent ? this.parent.toTree() : this.focus
+        let node = this
+        while (node.parent) {
+            node = node.parent
+        }
+        return node.focusNode
     }
 
 }

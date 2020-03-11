@@ -26,29 +26,35 @@ describe('Zipper', () => {
     zipper = Zipper.fromTree(t1);
   });
 
-  test('left returns a copy', () => {
+
+  test('left returns a new Zipper', () => {
     let left = zipper.left();
-    expect(left).not.toEqual(zipper)
+    expect(left).not.toBe(zipper)
   })
 
-  test('right returns a copy', () => {
+  test('right returns a new Zipper', () => {
     let right = zipper.right();
-    expect(right).not.toEqual(zipper)
+    expect(right).not.toBe(zipper)
   })
 
-  test('setValue returns a copy', () => {
-    let after = zipper.setValue(99);
-    expect(after).not.toEqual(zipper)
+  test('setValue returns a new Zipper', () => {
+    let anotherZipper = zipper.setValue(99);
+    expect(anotherZipper).not.toBe(zipper)
   })
 
-  test('setRight returns a copy', () => {
-    let after = zipper.setRight(bt(55,null,null));
-    expect(after).not.toEqual(zipper)
+  test('setRight returns a new Zipper', () => {
+    let right = zipper.setRight(bt(55,null,null));
+    expect(right).not.toBe(zipper)
   })
 
-  test('setLeft returns a copy', () => {
-    let after = zipper.setLeft(bt(55,null,null));
-    expect(after).not.toEqual(zipper)
+  test('setLeft returns a new Zipper', () => {
+    let left = zipper.setLeft(bt(55,null,null));
+    expect(left).not.toBe(zipper)
+  })
+
+  test('up returns a new Zipper', () => {
+    let up = zipper.right().up();
+    expect(zipper).not.toBe(up)
   })
 
   test('data is retained', () => {
