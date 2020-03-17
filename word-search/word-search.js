@@ -16,6 +16,7 @@ class Grid {
 
   letterAt({x, y}) {
     if (!this.grid[y]) return undefined
+
     return this.grid[y][x]
   }
 
@@ -38,7 +39,7 @@ const FORWARD = 1
 const BACKWARD = -1
 
 class Cursor {
-  constructor({x,y}, {direction} = {}) {
+  constructor({x,y}, {direction}) {
     this.x = x
     this.y = y
     this.direction = direction
