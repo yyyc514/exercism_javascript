@@ -36,6 +36,16 @@ const attributes = [
   "charisma"
 ]
 
+const privateVars = () => {
+  const p = new WeakMap()
+  return o => {
+    if (! p.has(o)) p.set(o, {})
+    return p.get(o)
+  }
+}
+
+const prv = privateVars()
+
 export class Character {
 
   constructor() {
@@ -44,8 +54,7 @@ export class Character {
 
   setupAttributes() {
     for (let attr of attributes) {
-      this[`_${attr}`] = Character.rollAbility()
-      Object.defineProperty(this, attr, { get: () => this[`_${attr}`] } )
+      prv(this)[attr] = Character.rollAbility()
     }
   }
 
@@ -59,4 +68,10 @@ export class Character {
   get hitpoints() {
     return BASE_HP + abilityModifier(this.constitution)
   }
+}
+
+for (let attr of attributes) {
+  Object.defineProperty(Character.prototype, attr, {
+    get: function ()  {return prv(this)[attr]}
+  })
 }
