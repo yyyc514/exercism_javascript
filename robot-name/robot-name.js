@@ -1,20 +1,16 @@
 const ALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-// https://stackoverflow.com/questions/6274339/how-can-i-shuffle-an-array
-function shuffle(a, len = a.length) {
-  for (let i = a.length - 1; i > a.length-len; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-const randomFrom = (arr) => arr[Math.floor(Math.random() * arr.length)]
+import { shuffle } from "./shuffle.js"
 
 class RobotFactory {
   constructor() {
-    this.releaseNames()
+    this.reset()
   }
-  releaseNames() {
+  static singleton() {
+    RobotFactory.__SINGLETON = RobotFactory.__SINGLETON || new RobotFactory()
+    return RobotFactory.__SINGLETON
+  }
+  reset() {
     if (!this.availableNames)
       this.availableNames = shuffle(this.allPossibleNames())
     else {
@@ -40,7 +36,7 @@ class RobotFactory {
     }
     return names
   }
-  reserveNewName() {
+  fetchNewName() {
     let name = this.availableNames.pop()
     this.takenNames.add(name)
     return name
@@ -52,11 +48,13 @@ class RobotFactory {
 
 }
 
-const FACTORY = new RobotFactory()
-
 export class Robot {
   constructor() {
     this.reset()
+  }
+
+  static factory() {
+    return RobotFactory.singleton()
   }
 
   get name() {
@@ -65,11 +63,11 @@ export class Robot {
 
   reset() {
     if (this.name)
-      FACTORY.returnName(this.name);
-    this._name = FACTORY.reserveNewName()
+      Robot.factory().returnName(this.name);
+    this._name = Robot.factory().fetchNewName()
 
   }
   static releaseNames() {
-    FACTORY.releaseNames()
+    this.factory().reset()
   }
 }
