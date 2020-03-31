@@ -1,49 +1,61 @@
 const WEEKDAYS = [ "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" ]
 
-const lastItem = (list) => list[list.length-1]
+function *daysInMonth(year, month) {
+    let date = new Date(year, month, 1);
 
-const findNthDate = (list, nth) => {
-    switch(nth) {
-    case "1st":
-    case "2nd":
-    case "3rd":
-    case "4th":
-    case "5th":
-        return list[parseInt(nth) - 1]
-    case "last":
-        return lastItem(list)
-    case "teenth":
-        return list.find((day) => day.getDate() >= 13)
-    default:
-        throw "filter type unknown"
+    while (date.getMonth() == month) {
+        yield(new Date(date))
+        date.setDate(date.getDate() + 1);
     }
 }
 
-const using = (obj, func) => {
-    func(obj);
-    return obj;
+Object.prototype.toEnum = function() {
+    return new Enumerable(this)
 }
 
-const daysInMonth = (year, month) => {
-    let date = new Date(year, month, 1);
-
-    let matches = using([], (acc) => {
-        while (date.getMonth() == month) {
-            acc.push(new Date(date));
-            date.setDate(date.getDate() + 1);
+class Enumerable {
+    constructor(list) {
+        this.list = list
+    }
+    [Symbol.iterator]() {
+        return this.list[Symbol.iterator]()
+    }
+    find(fn) {
+        for (let el of this) {
+            if (fn(el)) return el;
         }
-    })
-    return matches;
+        return null
+    }
+    toArray(){
+        return [...this.list]
+    }
 }
 
-const daysOfWeekInMonth = (year, month, day_of_week) => {
-    return daysInMonth(year, month)
-        .filter((day) => WEEKDAYS[day.getDay()] == day_of_week)
+const nameOfDay = (date) => WEEKDAYS[date.getDay()]
+const nextMonth = (date) => new Date(date.getYear(), date.getMonth() + 1)
+const lastWeekOfMonthStarts = (d) => rewindWeek(nextMonth(d))
+const rewindWeek = (date) => {
+    let d = new Date(date)
+    d.setDate(-6);
+    return d
 }
 
-export const meetupDay = (year, month, day_of_week, nth) => {
-    let potentialDates = daysOfWeekInMonth(year,month,day_of_week);
-    let day = findNthDate(potentialDates, nth);
+const QUALIFIER_FNS = {
+    "1st": (_) => true,
+    "2nd": (d) => d.getDate() >= 8,
+    "teenth": (d) => d.getDate() >= 13,
+    "3rd": (d) => d.getDate() >= 15,
+    "4th": (d) => d.getDate() >= 22,
+    "5th": (d) => d.getDate() >= 29,
+    "last": (d) => d.getDate() >= lastWeekOfMonthStarts(d).getDate()
+}
+
+export const meetupDay = (year, month, dayOfWeek, qualifier) => {
+    let day = daysInMonth(year,month)
+        .toEnum()
+        .find(day =>
+            nameOfDay(day) == dayOfWeek && QUALIFIER_FNS[qualifier](day))
+
     if (!day) { throw "date not found" }
 
     return day
