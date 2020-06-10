@@ -1,8 +1,15 @@
 // Luhn algorithm
 // https://en.wikipedia.org/wiki/Luhn_algorithm
 
-const toggle = (x) => !x
 const fromTheRight = (list) => list.reverse()
+
+const toggler = (start) => {
+  let state = start
+  return () => {
+    let lastState = state; state = !state
+    return lastState
+  }
+}
 
 export class Luhn {
   constructor(number) {
@@ -13,17 +20,19 @@ export class Luhn {
     return this.number.length < 2
   }
 
+  doubleEveryOtherDigit(digits) {
+    const everyOther = toggler(false)
+    return digits.map(digit => {
+      return everyOther()
+        ? this.double(digit)
+        : digit
+    })
+  }
+
   get checksum() {
-    let every_other_digit = false
-    return fromTheRight(this.digits).reduce((sum,digit) => {
-      if (every_other_digit) {
-        sum += this.double(digit)
-      } else {
-        sum += digit
-      }
-      every_other_digit = toggle(every_other_digit);
-      return sum;
-    },0);
+    return this.doubleEveryOtherDigit(
+      fromTheRight(this.digits))
+      .reduce((acc,n) =>  acc + n);
   }
 
   double(digit) {
